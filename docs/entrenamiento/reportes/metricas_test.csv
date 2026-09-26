@@ -1,0 +1,7 @@
+metrica,valor
+f1_macro,0.5184168646354683
+recall_atraso,0.4718498659517426
+precision_atraso,0.23097112860892388
+average_precision,0.24032317167782907
+roc_auc,0.5876158195069463
+accuracy,0.6085

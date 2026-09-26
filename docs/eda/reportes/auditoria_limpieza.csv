@@ -1,0 +1,13 @@
+regla,filas_excluidas,filas_restantes
+duplicados_por_huella,0,5819079
+cancelado_o_estado_invalido,89884,5729195
+desviado_o_estado_invalido,15187,5714008
+sin_atraso_observado,0,5714008
+fecha_invalida,0,5714008
+dia_semana_inconsistente,0,5714008
+hora_programada_invalida,0,5714008
+distancia_o_duracion_invalida,0,5714008
+categoria_faltante,0,5714008
+aerolinea_formato_invalido,0,5714008
+origin_airport_formato_invalido,0,5714008
+destination_airport_formato_invalido,0,5714008

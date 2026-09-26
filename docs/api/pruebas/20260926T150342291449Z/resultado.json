@@ -1,0 +1,425 @@
+{
+  "inicio": "2026-09-26T15:03:36.910448+00:00",
+  "fases": [
+    {
+      "prueba": "tests/test_api.py::test_health_y_metadatos",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.13208389998180792
+    },
+    {
+      "prueba": "tests/test_api.py::test_health_y_metadatos",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.004559199966024607
+    },
+    {
+      "prueba": "tests/test_api.py::test_health_y_metadatos",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0030444000149145722
+    },
+    {
+      "prueba": "tests/test_api.py::test_predict_igual_pipeline",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.057590699987486005
+    },
+    {
+      "prueba": "tests/test_api.py::test_predict_igual_pipeline",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.17484749999130145
+    },
+    {
+      "prueba": "tests/test_api.py::test_predict_igual_pipeline",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.003236300020944327
+    },
+    {
+      "prueba": "tests/test_api.py::test_lote_conserva_orden",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.05465310002909973
+    },
+    {
+      "prueba": "tests/test_api.py::test_lote_conserva_orden",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.34976960002677515
+    },
+    {
+      "prueba": "tests/test_api.py::test_lote_conserva_orden",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.003933600033633411
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios0]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.053811000019777566
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios0]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.003291199973318726
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios0]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.002778800029773265
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios1]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.049187000025995076
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios1]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.001994799997191876
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios1]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0037055000429973006
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios2]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.0653413999825716
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios2]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.0019087999826297164
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios2]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.008678799960762262
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios3]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.051974100002553314
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios3]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.0015492999809794128
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios3]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0022687999880872667
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios4]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.048926100018434227
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios4]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.0020693999831564724
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios4]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0022160999942570925
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios5]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.052178199985064566
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios5]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.002387499960605055
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios5]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0047963999677449465
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios6]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.053440899995621294
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios6]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.0016544000245630741
+    },
+    {
+      "prueba": "tests/test_api.py::test_entrada_invalida_422[cambios6]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0023281999747268856
+    },
+    {
+      "prueba": "tests/test_api.py::test_campo_faltante_422",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.05499859998235479
+    },
+    {
+      "prueba": "tests/test_api.py::test_campo_faltante_422",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.0032583000138401985
+    },
+    {
+      "prueba": "tests/test_api.py::test_campo_faltante_422",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.004259500012267381
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote0]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.04907070001354441
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote0]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.00165789999300614
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote0]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0022437000297941267
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote1]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.05458050000015646
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote1]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.004137300013098866
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote1]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.005672900006175041
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote2]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.05057309998665005
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote2]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.1327737999963574
+    },
+    {
+      "prueba": "tests/test_api.py::test_formato_lote_422[lote2]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.004286399984266609
+    },
+    {
+      "prueba": "tests/test_api.py::test_codigos_normalizados",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.04942340002162382
+    },
+    {
+      "prueba": "tests/test_api.py::test_codigos_normalizados",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.4294111999915913
+    },
+    {
+      "prueba": "tests/test_api.py::test_codigos_normalizados",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0027817999944090843
+    },
+    {
+      "prueba": "tests/test_api.py::test_fallo_modelo_500",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.05174610001267865
+    },
+    {
+      "prueba": "tests/test_api.py::test_fallo_modelo_500",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.005824499996379018
+    },
+    {
+      "prueba": "tests/test_api.py::test_fallo_modelo_500",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0023006999981589615
+    },
+    {
+      "prueba": "tests/test_api.py::test_modelo_carga_una_vez",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.00015129998791962862
+    },
+    {
+      "prueba": "tests/test_api.py::test_modelo_carga_una_vez",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.21927190001588315
+    },
+    {
+      "prueba": "tests/test_api.py::test_modelo_carga_una_vez",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0003522000042721629
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[ausente]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.006639299972448498
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[ausente]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.021288099989760667
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[ausente]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0002626000205054879
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[features]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.0020596000249497592
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[features]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.02158109995070845
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[features]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.00036810000892728567
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[sklearn]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.0022065999801270664
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[sklearn]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.015465699951164424
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[sklearn]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0003302000113762915
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[hash]",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.002506099990569055
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[hash]",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.025254999985918403
+    },
+    {
+      "prueba": "tests/test_api.py::test_arranque_incompatible_no_publica_modelo[hash]",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0013894999865442514
+    },
+    {
+      "prueba": "tests/test_api.py::test_docs_y_contrato_lote",
+      "fase": "setup",
+      "resultado": "passed",
+      "duracion_segundos": 0.0546382000320591
+    },
+    {
+      "prueba": "tests/test_api.py::test_docs_y_contrato_lote",
+      "fase": "call",
+      "resultado": "passed",
+      "duracion_segundos": 0.010398500016890466
+    },
+    {
+      "prueba": "tests/test_api.py::test_docs_y_contrato_lote",
+      "fase": "teardown",
+      "resultado": "passed",
+      "duracion_segundos": 0.0028951999847777188
+    }
+  ],
+  "errores_coleccion": [],
+  "fin": "2026-09-26T15:03:42.291379+00:00",
+  "python": "3.13.13",
+  "pytest": "8.3.3",
+  "argumentos_pytest": [
+    "-q",
+    "tests/test_api.py",
+    "--basetemp=C:\\Users\\sanbo\\Desktop\\Cloud Computing\\Tarea CC\\CC_MDS_G7_FLT\\.pytest_tmp_a9f0512ac9e545be9e3a20ebfa3775c9"
+  ],
+  "codigo_salida": 0,
+  "correcto": true,
+  "duracion_segundos": 5.381,
+  "resumen": {
+    "passed": 22,
+    "failed": 0,
+    "error": 0,
+    "skipped": 0,
+    "xfailed": 0,
+    "xpassed": 0,
+    "warnings": 1
+  },
+  "avisos": [
+    "C:\\Users\\sanbo\\Desktop\\Cloud Computing\\Tarea CC\\CC_MDS_G7_FLT\\.venv\\Lib\\site-packages\\starlette\\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.\n  _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]\n"
+  ]
+}

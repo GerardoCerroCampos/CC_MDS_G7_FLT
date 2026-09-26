@@ -1,0 +1,33 @@
+{
+  "filas_originales": 5819079,
+  "columnas_originales": 31,
+  "filas_limpias": 5714008,
+  "filas_excluidas": 105071,
+  "muestra": 10000,
+  "train": 8000,
+  "test": 2000,
+  "exclusiones": {
+    "duplicados_por_huella": 0,
+    "cancelado_o_estado_invalido": 89884,
+    "desviado_o_estado_invalido": 15187,
+    "sin_atraso_observado": 0,
+    "fecha_invalida": 0,
+    "dia_semana_inconsistente": 0,
+    "hora_programada_invalida": 0,
+    "distancia_o_duracion_invalida": 0,
+    "categoria_faltante": 0,
+    "aerolinea_formato_invalido": 0,
+    "origin_airport_formato_invalido": 0,
+    "destination_airport_formato_invalido": 0
+  },
+  "semilla": 42,
+  "tamano_bloque": 200000,
+  "sha256_original": "afa4e42188b113dd69427a3fbd00a4b6979c6235c866f963c2899d18a3403a83",
+  "python": "3.13.13",
+  "pandas": "3.0.1",
+  "numpy": "2.3.5",
+  "matplotlib": "3.10.8",
+  "proporcion_atraso_train": 0.186625,
+  "correlacion_distancia_duracion": 0.9848268681755348,
+  "verificacion_csv_exportados": true
+}

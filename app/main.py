@@ -1,157 +1,134 @@
-"""
-app/main.py — API de inferencia con FastAPI (atraso de vuelos).
-
-Expone el modelo que predice ARRIVAL_DELAY_15 (atraso de llegada >= 15 min):
-  GET  /health         estado + confirmación de modelo cargado
-  GET  /model-info     metadatos (tipo, target, features, métricas, versión)
-  POST /predict        predicción de un vuelo (con probabilidad)
-  POST /predict-batch  predicción de una lista de vuelos (mismo orden)
-  GET  /docs           Swagger UI (automática)
-
-Diseño exigido por la tarea:
-  * El modelo se carga UNA vez al iniciar (lifespan), no por petición.
-  * La validación de entrada la hace Pydantic -> entradas inválidas => 422.
-  * Fallo interno del modelo => 500 con mensaje controlado (sin trazas al cliente).
-  * Modelo no disponible => 503.
-"""
-
+"""API de inferencia para el pipeline generado por el entrenamiento de vuelos."""
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Annotated
+import hashlib
 import json
 import logging
 
 import joblib
+import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+import sklearn
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
-from app.features import FEATURES, canonizar_registro
-from app.schemas import (
-    Vuelo,
-    LoteVuelos,
-    RespuestaPrediccion,
-    RespuestaLote,
-    RespuestaSalud,
-    RespuestaModelInfo,
-)
+from app.features import FEATURES, TARGET, canonizar_registro
+from app.schemas import Vuelo, RespuestaPrediccion, RespuestaSalud, RespuestaModelInfo
 
-logger = logging.getLogger("api-vuelos")
-logging.basicConfig(level=logging.INFO)
-
+logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
-MODEL_PATH = BASE_DIR / "model" / "model.pkl"
-METADATA_PATH = BASE_DIR / "model" / "metadata.json"
-
+MODEL_PATH = BASE_DIR / 'model/model.pkl'
+METADATA_PATH = BASE_DIR / 'model/metadata.json'
 ARTIFACTS: dict = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Carga el modelo y los metadatos una sola vez, al arrancar el servicio."""
-    try:
-        ARTIFACTS["model"] = joblib.load(MODEL_PATH)
-        with open(METADATA_PATH, "r", encoding="utf-8") as f:
-            ARTIFACTS["metadata"] = json.load(f)
-        logger.info("Modelo y metadatos cargados correctamente.")
-    except FileNotFoundError:
-        logger.error("No se encontró el modelo. Ejecuta 'python train.py' primero.")
-    yield
+    """Publica ambos artefactos solo después de verificar su compatibilidad."""
     ARTIFACTS.clear()
-    logger.info("Artefactos liberados al cerrar la aplicación.")
+    try:
+        meta = json.loads(METADATA_PATH.read_text(encoding='utf-8'))
+        if meta['sklearn'] != sklearn.__version__:
+            raise ValueError('La versión de scikit-learn difiere de la de entrenamiento.')
+        if meta['features'] != FEATURES or meta['target'] != TARGET:
+            raise ValueError('Los metadatos no coinciden con las entradas de esta API.')
+        if hashlib.sha256(MODEL_PATH.read_bytes()).hexdigest() != meta['model_sha256']:
+            raise ValueError('El modelo y sus metadatos no corresponden al mismo artefacto.')
+        modelo = joblib.load(MODEL_PATH)
+        if not isinstance(modelo, Pipeline) or not isinstance(modelo.named_steps.get('pre'), ColumnTransformer):
+            raise ValueError('El artefacto debe contener el pipeline completo.')
+        if list(modelo.feature_names_in_) != FEATURES or list(modelo.classes_) != [0, 1]:
+            raise ValueError('Variables o clases incompatibles.')
+        if meta['estimator'] != type(modelo.named_steps['clf']).__name__:
+            raise ValueError('El estimador no coincide con los metadatos.')
+        RespuestaModelInfo(
+            model_type=meta['estimator'], task='classification', target=meta['target'],
+            features=meta['features'], metrics=meta['metrics'], sklearn_version=meta['sklearn'],
+            model_version=meta['model_version'], run_id=meta.get('run_id'),
+        )
+        ARTIFACTS.update(model=modelo, metadata=meta)
+        logger.info('Pipeline y metadatos cargados correctamente.')
+    except Exception:
+        logger.exception('No fue posible cargar un modelo compatible; inferencia deshabilitada.')
+    try:
+        yield
+    finally:
+        ARTIFACTS.clear()
 
 
 app = FastAPI(
-    title="API de inferencia — Atraso de vuelos",
-    description=(
-        "Predice si un vuelo llegará con 15 minutos o más de atraso "
-        "(ARRIVAL_DELAY_15), usando solo información conocida antes de la salida."
-    ),
-    version="1.0.0",
-    lifespan=lifespan,
+    title='API de atraso de vuelos', version='1.0.0', lifespan=lifespan,
+    description='Predice atraso de llegada >= 15 minutos para vuelos que completan su ruta. '
+                'Usa información disponible antes de la salida programada.',
 )
 
 
-def _model_version() -> str:
-    return ARTIFACTS.get("metadata", {}).get("model_version", "desconocida")
-
-
 def _requiere_modelo():
-    modelo = ARTIFACTS.get("model")
-    if modelo is None:
-        raise HTTPException(
-            status_code=503,
-            detail="El modelo no está cargado. Ejecuta 'python train.py' y reinicia.",
-        )
-    return modelo
+    if 'model' not in ARTIFACTS or 'metadata' not in ARTIFACTS:
+        raise HTTPException(503, 'Modelo no disponible. Revisa los artefactos y reinicia el servicio.')
+    return ARTIFACTS['model']
 
 
 def _predecir(modelo, vuelos: list[dict]) -> list[RespuestaPrediccion]:
-    """Canoniza las categóricas, ejecuta el pipeline y arma las respuestas."""
-    registros = [canonizar_registro(v) for v in vuelos]
-    df = pd.DataFrame(registros)[FEATURES]  # orden de columnas exacto del contrato
     try:
-        preds = modelo.predict(df)
-        probas = modelo.predict_proba(df)
-    except Exception:
-        logger.exception("Fallo al generar la predicción")
-        raise HTTPException(status_code=500, detail="Error al generar la predicción")
-
-    ts = datetime.now(timezone.utc).isoformat()
-    version = _model_version()
-    salida: list[RespuestaPrediccion] = []
-    for pred, proba in zip(preds, probas):
-        pred = int(pred)
-        salida.append(
-            RespuestaPrediccion(
+        datos = pd.DataFrame([canonizar_registro(v) for v in vuelos], columns=FEATURES)
+        predicciones = modelo.predict(datos)
+        probabilidades = modelo.predict_proba(datos)
+        clases = list(modelo.classes_)
+        if probabilidades.shape != (len(vuelos), len(clases)) or len(predicciones) != len(vuelos):
+            raise ValueError('Dimensiones de salida inválidas.')
+        if not np.isfinite(probabilidades).all():
+            raise ValueError('Probabilidades no finitas.')
+        fecha = datetime.now(timezone.utc)
+        meta = ARTIFACTS['metadata']
+        salida = []
+        for pred, proba in zip(predicciones, probabilidades):
+            pred = int(pred)
+            salida.append(RespuestaPrediccion(
                 prediccion=pred,
-                etiqueta="atraso >= 15 min" if pred == 1 else "a tiempo",
-                probabilidad=round(float(proba.max()), 4),
-                probabilidad_atraso=round(float(proba[1]), 4),
-                model_version=version,
-                timestamp=ts,
-            )
-        )
-    return salida
+                etiqueta='atraso >= 15 min' if pred == 1 else 'atraso menor de 15 min',
+                probabilidad=round(float(proba[clases.index(pred)]), 4),
+                probabilidad_atraso=round(float(proba[clases.index(1)]), 4),
+                model_version=meta['model_version'], run_id=meta.get('run_id'), timestamp=fecha,
+            ))
+        return salida
+    except Exception:
+        logger.exception('Fallo interno al generar la predicción.')
+        raise HTTPException(500, 'Error al generar la predicción') from None
 
 
-@app.get("/", include_in_schema=False)
+@app.get('/', include_in_schema=False)
 def root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse('/docs')
 
 
-@app.get("/health", response_model=RespuestaSalud, tags=["infra"])
+@app.get('/health', response_model=RespuestaSalud, tags=['infra'])
 def health():
-    """Estado del servicio y confirmación de que el modelo está en memoria."""
-    return RespuestaSalud(status="ok", model_loaded="model" in ARTIFACTS)
+    cargado = 'model' in ARTIFACTS and 'metadata' in ARTIFACTS
+    return RespuestaSalud(status='ok' if cargado else 'degraded', model_loaded=cargado)
 
 
-@app.get("/model-info", response_model=RespuestaModelInfo, tags=["infra"])
+@app.get('/model-info', response_model=RespuestaModelInfo, tags=['infra'])
 def model_info():
-    """Metadatos del modelo entrenado."""
     _requiere_modelo()
-    meta = ARTIFACTS.get("metadata", {})
+    meta = ARTIFACTS['metadata']
     return RespuestaModelInfo(
-        model_type=meta.get("model_type", "desconocido"),
-        task=meta.get("task", "desconocido"),
-        target=meta.get("target", "desconocido"),
-        features=meta.get("features", []),
-        metrics=meta.get("metrics", {}),
-        sklearn_version=meta.get("sklearn_version", "desconocida"),
-        model_version=meta.get("model_version", "desconocida"),
+        model_type=meta['estimator'], task='classification', target=meta['target'],
+        features=meta['features'], metrics=meta['metrics'], sklearn_version=meta['sklearn'],
+        model_version=meta['model_version'], run_id=meta.get('run_id'),
     )
 
 
-@app.post("/predict", response_model=RespuestaPrediccion, tags=["inferencia"])
+@app.post('/predict', response_model=RespuestaPrediccion, tags=['inferencia'])
 def predict(vuelo: Vuelo):
-    """Predice el atraso para un solo vuelo."""
-    modelo = _requiere_modelo()
-    return _predecir(modelo, [vuelo.model_dump()])[0]
+    return _predecir(_requiere_modelo(), [vuelo.model_dump()])[0]
 
 
-@app.post("/predict-batch", response_model=RespuestaLote, tags=["inferencia"])
-def predict_batch(lote: LoteVuelos):
-    """Predice el atraso para una lista de vuelos (mismo orden de entrada)."""
-    modelo = _requiere_modelo()
-    salida = _predecir(modelo, [v.model_dump() for v in lote.items])
-    return RespuestaLote(n=len(salida), predicciones=salida)
+@app.post('/predict-batch', response_model=list[RespuestaPrediccion], tags=['inferencia'])
+def predict_batch(vuelos: Annotated[list[Vuelo], Body(min_length=1, max_length=5000)]):
+    """Recibe un arreglo JSON y devuelve las predicciones en el mismo orden."""
+    return _predecir(_requiere_modelo(), [v.model_dump() for v in vuelos])

@@ -9,4 +9,4 @@ Archivos usados:
 - `airports.csv`: tabla de referencia código IATA -> datos del aeropuerto.
 
 Para reproducir: descargar los 3 archivos desde el link de Kaggle y colocarlos en esta carpeta
-(`data/`). No se versionan en este repositorio por su tamaño (ver .gitignore).
+(`data/raw`). No se versionan en este repositorio por su tamaño (ver .gitignore).

@@ -1,12 +1,9 @@
 {
-  "model_type": "LogisticRegression",
-  "task": "binary_classification",
-  "target": "ARRIVAL_DELAY_15",
-  "target_rule": "ARRIVAL_DELAY >= 15",
-  "positive_class": "1 = atraso de llegada >= 15 min",
-  "population": "Vuelos no cancelados ni desviados, con atraso observado",
-  "prediction_moment": "Antes de la salida programada",
-  "sklearn_version": "1.8.0",
+  "model_version": "1.0.0",
+  "run_id": "20260926T145348857218Z",
+  "created_at_utc": "2026-09-26T14:53:52.533959+00:00",
+  "python": "3.13.13",
+  "sklearn": "1.8.0",
   "features": [
     "AIRLINE",
     "ORIGIN_AIRPORT",
@@ -31,59 +28,96 @@
     "SCHEDULED_TIME",
     "DISTANCE"
   ],
+  "target": "ARRIVAL_DELAY_15",
+  "target_rule": "ARRIVAL_DELAY >= 15",
+  "audit_columns_excluded": [
+    "SOURCE_ROW",
+    "FLIGHT_DATE",
+    "ARRIVAL_DELAY"
+  ],
+  "population": "Vuelos no cancelados ni desviados, con atraso observado",
+  "prediction_time": "Antes de la salida programada",
+  "metric": "f1_macro",
+  "value": 0.5184168646354683,
   "metrics": {
-    "accuracy": 0.584,
-    "balanced_accuracy": 0.5851,
-    "precision_pos": 0.4618,
-    "recall_pos": 0.5897,
-    "f1_pos": 0.518,
-    "f1_macro": 0.576,
-    "roc_auc": 0.6091,
-    "pr_auc": 0.4752
+    "f1_macro": 0.5184168646354683,
+    "recall_atraso": 0.4718498659517426,
+    "precision_atraso": 0.23097112860892388,
+    "average_precision": 0.24032317167782907,
+    "roc_auc": 0.5876158195069463,
+    "accuracy": 0.6085
   },
-  "cv_metrics": {
-    "f1_macro": {
-      "mean": 0.5607,
-      "std": 0.0051
-    },
-    "roc_auc": {
-      "mean": 0.5936,
-      "std": 0.009
-    },
-    "recall": {
-      "mean": 0.5709,
-      "std": 0.0157
-    },
-    "precision": {
-      "mean": 0.4464,
-      "std": 0.0052
-    },
-    "balanced_accuracy": {
-      "mean": 0.5693,
-      "std": 0.0055
-    }
+  "baseline_always_zero": {
+    "accuracy": 0.8135,
+    "f1_macro": 0.4485800937413841,
+    "recall_atraso": 0.0
   },
-  "baseline_metrics": {
-    "accuracy": 0.621,
-    "balanced_accuracy": 0.5,
-    "precision_pos": 0.0,
-    "recall_pos": 0.0,
-    "f1_pos": 0.0,
-    "f1_macro": 0.3831,
-    "roc_auc": 0.5,
-    "pr_auc": 0.379
+  "confusion_matrix": [
+    [
+      1041,
+      586
+    ],
+    [
+      197,
+      176
+    ]
+  ],
+  "class_order": [
+    0,
+    1
+  ],
+  "random_state": 42,
+  "split": {
+    "method": "Partición estratificada 80/20 exportada por el EDA",
+    "seed": 42,
+    "n_train": 8000,
+    "n_test": 2000,
+    "no_shared_source_rows": true
   },
-  "confusion_matrix": {
-    "tn": 1442,
-    "fp": 1042,
-    "fn": 622,
-    "tp": 894
+  "positive_rate_train": 0.186625,
+  "positive_rate_test": 0.1865,
+  "estimator": "RandomForestClassifier",
+  "parameters": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": 12,
+    "max_features": "sqrt",
+    "max_leaf_nodes": 256,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 8,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 200,
+    "n_jobs": 2,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
   },
-  "class_prevalence_train": 0.3791,
-  "interpretation": "El 37.9% de los vuelos de entrenamiento tienen atraso >= 15 min (clase positiva), de modo que la exactitud por sí sola es engañosa. En el hold-out, el modelo detecta el 59.0% de los atrasos reales (recall) y, de sus alertas de atraso, acierta el 46.2% (precisión). El ROC-AUC es 0.609 y el PR-AUC 0.475. Frente al baseline de clase mayoritaria (F1-macro 0.383), el modelo mejora el F1-macro en +0.193 puntos, lo que confirma que aprende señal por encima de predecir siempre la clase más frecuente.",
-  "model_version": "1.0.0",
-  "data_source": "sintetico",
-  "n_train": 16000,
-  "n_test": 4000,
-  "seed": 42
+  "versions": {
+    "scikit-learn": "1.8.0",
+    "pandas": "3.0.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "joblib": "1.5.3",
+    "threadpoolctl": "3.6.0"
+  },
+  "model_size_bytes": 362216,
+  "full_pipeline": true,
+  "independent_reload_verified": true,
+  "model_sha256": "ee0c01291d6b3d5dd9112f308e0fb7b9b7761669def8da15227fc5eb7ab32eb4",
+  "data_sha256": {
+    "train.csv": "01c2242c3691aa9264c6676eec375de8028ab9324ac05e3441924f1f68808c8a",
+    "test.csv": "f086171a1160fd8d44bb7f57bbb6fd7e5a995e79b5950971fcb9d4effaf2e7ea"
+  },
+  "limitations": [
+    "Datos de 2015; una separación aleatoria no demuestra desempeño en años futuros.",
+    "Posible dependencia entre vuelos de rutas o fechas cercanas.",
+    "Códigos IATA/BTS se mantienen separados; probabilidades no calibradas.",
+    "Test ya fue utilizado en ejercicios anteriores; no es una evaluación externa nueva."
+  ]
 }

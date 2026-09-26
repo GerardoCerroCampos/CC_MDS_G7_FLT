@@ -1,0 +1,120 @@
+[
+  {
+    "caso": "Individual",
+    "fecha_utc": "2026-09-26T15:06:01.120280+00:00",
+    "metodo": "POST",
+    "url": "http://localhost:8000/predict",
+    "solicitud": {
+      "AIRLINE": "AA",
+      "ORIGIN_AIRPORT": "LAX",
+      "DESTINATION_AIRPORT": "JFK",
+      "MONTH": 7,
+      "DAY": 15,
+      "DAY_OF_WEEK": 3,
+      "SCHEDULED_DEPARTURE_MIN": 1080,
+      "SCHEDULED_TIME": 320.0,
+      "DISTANCE": 2475.0
+    },
+    "http_esperado": 200,
+    "http_obtenido": 200,
+    "correcto": true,
+    "respuesta": {
+      "prediccion": 1,
+      "etiqueta": "atraso >= 15 min",
+      "probabilidad": 0.5421,
+      "probabilidad_atraso": 0.5421,
+      "model_version": "1.0.0",
+      "run_id": "20260926T145348857218Z",
+      "timestamp": "2026-09-26T15:06:01.115533Z"
+    }
+  },
+  {
+    "caso": "Lote",
+    "fecha_utc": "2026-09-26T15:06:03.242815+00:00",
+    "metodo": "POST",
+    "url": "http://localhost:8000/predict-batch",
+    "solicitud": [
+      {
+        "AIRLINE": "AA",
+        "ORIGIN_AIRPORT": "LAX",
+        "DESTINATION_AIRPORT": "JFK",
+        "MONTH": 7,
+        "DAY": 15,
+        "DAY_OF_WEEK": 3,
+        "SCHEDULED_DEPARTURE_MIN": 1080,
+        "SCHEDULED_TIME": 320.0,
+        "DISTANCE": 2475.0
+      },
+      {
+        "AIRLINE": "DL",
+        "ORIGIN_AIRPORT": "LAX",
+        "DESTINATION_AIRPORT": "JFK",
+        "MONTH": 7,
+        "DAY": 15,
+        "DAY_OF_WEEK": 3,
+        "SCHEDULED_DEPARTURE_MIN": 1080,
+        "SCHEDULED_TIME": 320.0,
+        "DISTANCE": 2475.0
+      }
+    ],
+    "http_esperado": 200,
+    "http_obtenido": 200,
+    "correcto": true,
+    "respuesta": [
+      {
+        "prediccion": 1,
+        "etiqueta": "atraso >= 15 min",
+        "probabilidad": 0.5421,
+        "probabilidad_atraso": 0.5421,
+        "model_version": "1.0.0",
+        "run_id": "20260926T145348857218Z",
+        "timestamp": "2026-09-26T15:06:03.239684Z"
+      },
+      {
+        "prediccion": 1,
+        "etiqueta": "atraso >= 15 min",
+        "probabilidad": 0.5095,
+        "probabilidad_atraso": 0.5095,
+        "model_version": "1.0.0",
+        "run_id": "20260926T145348857218Z",
+        "timestamp": "2026-09-26T15:06:03.239684Z"
+      }
+    ]
+  },
+  {
+    "caso": "Entrada inválida",
+    "fecha_utc": "2026-09-26T15:06:05.316219+00:00",
+    "metodo": "POST",
+    "url": "http://localhost:8000/predict",
+    "solicitud": {
+      "AIRLINE": "AA",
+      "ORIGIN_AIRPORT": "LAX",
+      "DESTINATION_AIRPORT": "JFK",
+      "MONTH": 13,
+      "DAY": 15,
+      "DAY_OF_WEEK": 3,
+      "SCHEDULED_DEPARTURE_MIN": 1080,
+      "SCHEDULED_TIME": 320.0,
+      "DISTANCE": 2475.0
+    },
+    "http_esperado": 422,
+    "http_obtenido": 422,
+    "correcto": true,
+    "respuesta": {
+      "detail": [
+        {
+          "type": "less_than_equal",
+          "loc": [
+            "body",
+            "MONTH"
+          ],
+          "msg": "Input should be less than or equal to 12",
+          "input": 13,
+          "ctx": {
+            "le": 12
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "ejecucion": "20260926T150551270097Z",
+  "python_pruebas": "3.13.13",
+  "interprete_pruebas": "C:\\Users\\sanbo\\Desktop\\Cloud Computing\\Tarea CC\\CC_MDS_G7_FLT\\.venv\\Scripts\\python.exe",
+  "api_url": "http://localhost:8000",
+  "pytest_comando": [
+    "C:\\Users\\sanbo\\Desktop\\Cloud Computing\\Tarea CC\\CC_MDS_G7_FLT\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_api.py",
+    "--basetemp=C:\\Users\\sanbo\\Desktop\\Cloud Computing\\Tarea CC\\CC_MDS_G7_FLT\\.pytest_tmp_509b8fabf31343afa1cd5da96eade206"
+  ],
+  "pytest_exit_code": 0,
+  "llamadas_correctas": 3,
+  "correcto": true
+}

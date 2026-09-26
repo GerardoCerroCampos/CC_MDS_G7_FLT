@@ -1,0 +1,83 @@
+REGISTRO AUTOMÁTICO DE PYTEST
+
+Inicio UTC: 2026-09-26T15:22:12.778956+00:00
+Python: 3.13.13 | pytest: 8.3.3
+Argumentos: -q tests/test_api.py --basetemp=C:\Users\sanbo\Desktop\Cloud Computing\Tarea CC\CC_MDS_G7_FLT\.pytest_tmp_97f2d7f78a8b452fa213999d411630b3
+Código de salida: 0
+Resultado: CORRECTO
+Resumen: 22 passed, 1 warnings
+Duración registrada: 6.484 segundos
+
+DETALLE POR FASE
+
+tests/test_api.py::test_health_y_metadatos | setup | passed | 0.2029 s
+tests/test_api.py::test_health_y_metadatos | call | passed | 0.0049 s
+tests/test_api.py::test_health_y_metadatos | teardown | passed | 0.0039 s
+tests/test_api.py::test_predict_igual_pipeline | setup | passed | 0.0691 s
+tests/test_api.py::test_predict_igual_pipeline | call | passed | 0.2283 s
+tests/test_api.py::test_predict_igual_pipeline | teardown | passed | 0.0033 s
+tests/test_api.py::test_lote_conserva_orden | setup | passed | 0.0629 s
+tests/test_api.py::test_lote_conserva_orden | call | passed | 0.3518 s
+tests/test_api.py::test_lote_conserva_orden | teardown | passed | 0.0019 s
+tests/test_api.py::test_entrada_invalida_422[cambios0] | setup | passed | 0.0565 s
+tests/test_api.py::test_entrada_invalida_422[cambios0] | call | passed | 0.0112 s
+tests/test_api.py::test_entrada_invalida_422[cambios0] | teardown | passed | 0.0033 s
+tests/test_api.py::test_entrada_invalida_422[cambios1] | setup | passed | 0.0480 s
+tests/test_api.py::test_entrada_invalida_422[cambios1] | call | passed | 0.0021 s
+tests/test_api.py::test_entrada_invalida_422[cambios1] | teardown | passed | 0.0036 s
+tests/test_api.py::test_entrada_invalida_422[cambios2] | setup | passed | 0.0497 s
+tests/test_api.py::test_entrada_invalida_422[cambios2] | call | passed | 0.0021 s
+tests/test_api.py::test_entrada_invalida_422[cambios2] | teardown | passed | 0.0028 s
+tests/test_api.py::test_entrada_invalida_422[cambios3] | setup | passed | 0.0505 s
+tests/test_api.py::test_entrada_invalida_422[cambios3] | call | passed | 0.0026 s
+tests/test_api.py::test_entrada_invalida_422[cambios3] | teardown | passed | 0.0033 s
+tests/test_api.py::test_entrada_invalida_422[cambios4] | setup | passed | 0.0506 s
+tests/test_api.py::test_entrada_invalida_422[cambios4] | call | passed | 0.0030 s
+tests/test_api.py::test_entrada_invalida_422[cambios4] | teardown | passed | 0.0050 s
+tests/test_api.py::test_entrada_invalida_422[cambios5] | setup | passed | 0.0512 s
+tests/test_api.py::test_entrada_invalida_422[cambios5] | call | passed | 0.0020 s
+tests/test_api.py::test_entrada_invalida_422[cambios5] | teardown | passed | 0.0031 s
+tests/test_api.py::test_entrada_invalida_422[cambios6] | setup | passed | 0.0518 s
+tests/test_api.py::test_entrada_invalida_422[cambios6] | call | passed | 0.0015 s
+tests/test_api.py::test_entrada_invalida_422[cambios6] | teardown | passed | 0.0043 s
+tests/test_api.py::test_campo_faltante_422 | setup | passed | 0.0512 s
+tests/test_api.py::test_campo_faltante_422 | call | passed | 0.0023 s
+tests/test_api.py::test_campo_faltante_422 | teardown | passed | 0.0028 s
+tests/test_api.py::test_formato_lote_422[lote0] | setup | passed | 0.0494 s
+tests/test_api.py::test_formato_lote_422[lote0] | call | passed | 0.0033 s
+tests/test_api.py::test_formato_lote_422[lote0] | teardown | passed | 0.0035 s
+tests/test_api.py::test_formato_lote_422[lote1] | setup | passed | 0.0526 s
+tests/test_api.py::test_formato_lote_422[lote1] | call | passed | 0.0022 s
+tests/test_api.py::test_formato_lote_422[lote1] | teardown | passed | 0.0021 s
+tests/test_api.py::test_formato_lote_422[lote2] | setup | passed | 0.0503 s
+tests/test_api.py::test_formato_lote_422[lote2] | call | passed | 0.1314 s
+tests/test_api.py::test_formato_lote_422[lote2] | teardown | passed | 0.0032 s
+tests/test_api.py::test_codigos_normalizados | setup | passed | 0.0502 s
+tests/test_api.py::test_codigos_normalizados | call | passed | 0.4389 s
+tests/test_api.py::test_codigos_normalizados | teardown | passed | 0.0044 s
+tests/test_api.py::test_fallo_modelo_500 | setup | passed | 0.0508 s
+tests/test_api.py::test_fallo_modelo_500 | call | passed | 0.0205 s
+tests/test_api.py::test_fallo_modelo_500 | teardown | passed | 0.0027 s
+tests/test_api.py::test_modelo_carga_una_vez | setup | passed | 0.0001 s
+tests/test_api.py::test_modelo_carga_una_vez | call | passed | 0.2295 s
+tests/test_api.py::test_modelo_carga_una_vez | teardown | passed | 0.0002 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[ausente] | setup | passed | 0.0048 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[ausente] | call | passed | 0.0249 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[ausente] | teardown | passed | 0.0003 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[features] | setup | passed | 0.0029 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[features] | call | passed | 0.0168 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[features] | teardown | passed | 0.0003 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[sklearn] | setup | passed | 0.0029 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[sklearn] | call | passed | 0.0240 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[sklearn] | teardown | passed | 0.0002 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[hash] | setup | passed | 0.0018 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[hash] | call | passed | 0.0232 s
+tests/test_api.py::test_arranque_incompatible_no_publica_modelo[hash] | teardown | passed | 0.0002 s
+tests/test_api.py::test_docs_y_contrato_lote | setup | passed | 0.0501 s
+tests/test_api.py::test_docs_y_contrato_lote | call | passed | 0.0196 s
+tests/test_api.py::test_docs_y_contrato_lote | teardown | passed | 0.0026 s
+
+AVISOS
+C:\Users\sanbo\Desktop\Cloud Computing\Tarea CC\CC_MDS_G7_FLT\.venv\Lib\site-packages\starlette\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+  _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+

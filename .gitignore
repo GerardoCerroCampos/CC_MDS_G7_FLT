@@ -1,7 +1,8 @@
-.venv/
+.venv*/
 __pycache__/
-*.pyc
-.DS_Store
+.ipynb_checkpoints/
+.pytest_cache/
+.pytest_tmp_*/
 data/*.csv
-!data/README.md
-.env
+data/raw/
+model/versions/
