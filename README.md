@@ -175,7 +175,9 @@ Se guardan pytest, solicitudes, respuestas y códigos HTTP en `docs/api/ejecucio
 - [Solicitudes y respuestas JSON](docs/api/ejecuciones/20260926T152212073522Z/llamadas.json).
 - [Resumen de ejecución](docs/api/ejecuciones/20260926T152212073522Z/resumen.json).
 
-**Evidencia pendiente:** guardar y versionar una captura real de Swagger funcionando, por ejemplo `docs/api/swagger_localhost.png`, y enlazarla aquí después de incorporarla. Los registros anteriores no sustituyen esa captura. Si se actualizan código o modelo, repetir las pruebas y actualizar los enlaces y el resultado de este README.
+### Swagger en localhost
+
+![Swagger de la API funcionando](docs/api/swagger_localhost.png)
 
 ## 8. Entorno y alcance
 
@@ -185,4 +187,9 @@ requirements.txt fija las dependencias. runtime.txt declara `python-3.13.13`. Pr
 web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
-La evidencia corresponde a ejecución local. Esta entrega no acredita un despliegue en nube. Antes de entregar, realizar una instalación en una copia nueva con entorno virtual nuevo, comprobar carga del modelo, ejecutar pruebas e iniciar el servicio. El historial de Git debe incluir las contribuciones de todos los integrantes; si el repositorio es privado, se debe otorgar acceso al equipo docente.
+La evidencia corresponde a ejecución local. Esta entrega no acredita un despliegue en nube. El historial de Git debe incluir las contribuciones de todos los integrantes; si el repositorio es privado, se debe otorgar acceso al equipo docente.
+
+
+## 9. Comprobación desde una copia nueva
+
+El equipo verificó el proyecto desde una copia nueva del repositorio y un entorno virtual nuevo con Python 3.13.13. La instalación de dependencias, la carga del modelo y las pruebas finalizaron correctamente.
