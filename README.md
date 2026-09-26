@@ -1,204 +1,188 @@
-# API de inferencia — Atraso de vuelos (FastAPI)
+# Predicción de atraso de vuelos — API con FastAPI
 
-Servicio HTTP que expone un modelo de clasificación que predice si un vuelo
-llegará con **15 minutos o más de atraso** (`ARRIVAL_DELAY_15`), usando solo
-información conocida **antes de la salida programada**. El modelo se entrena con
-scikit-learn y se sirve con FastAPI.
+Proyecto de Cloud Computing, Diploma en Data Science, Universidad Adolfo Ibáñez.
+El servicio predice si un vuelo llegará con **15 minutos o más de atraso** (`ARRIVAL_DELAY_15`). El modelo utiliza información disponible antes de la salida programada y se aplica a vuelos no cancelados ni desviados, con atraso de llegada observado. No estima cancelaciones ni el riesgo total de interrupción de un vuelo.
 
-Este repositorio corresponde al **Paso 5 — API con FastAPI** de la tarea.
+La entrega incluye EDA, entrenamiento reproducible, pipeline serializado, API, pruebas automatizadas y evidencia de llamadas a localhost.
 
-> **Nota sobre el objetivo.** El `data/README.md` describe la fuente (2015 Flight
-> Delays and Cancellations, USDOT). El problema modelado, siguiendo el
-> `EDA.ipynb`, es la predicción de **atraso de llegada ≥ 15 min**
-> (`ARRIVAL_DELAY_15`) sobre vuelos no cancelados ni desviados — no la predicción
-> de cancelación. La API respeta el contrato de datos generado por el EDA.
+## 1. Datos y preparación
 
-## Coherencia de versiones (.pkl ↔ requirements.txt ↔ runtime)
+Fuente pública: [2015 Flight Delays and Cancellations, USDOT en Kaggle](https://www.kaggle.com/datasets/usdot/flight-delays). Las instrucciones de descarga y la identificación del archivo están en [data/README.md](data/README.md).
 
-Todas las versiones de librerías son **exactamente** las de `requirements.txt`
-(scikit-learn 1.8.0, numpy 2.3.5, scipy 1.16.3, pandas 3.0.1, joblib 1.5.3,
-threadpoolctl 3.6.0, matplotlib 3.10.8, fastapi 0.115.0, pydantic 2.9.2,
-uvicorn 0.30.6, pytest 8.3.3, httpx 0.27.2).
+El EDA procesa 5.819.079 filas y conserva 5.714.008 vuelos. Excluye 89.884 cancelados y 15.187 desviados. Revisa nulos, duplicados, fechas, formatos y rangos; conserva atrasos negativos y extremos válidos. Los códigos de aeropuerto de tres letras se representan como `IATA:XXX` y los numéricos como `BTS:xxxxx`, sin inventar equivalencias entre ambos sistemas.
 
-`runtime.txt` fija **Python 3.13.13**. Motivo: `pydantic==2.9.2`
-(vía `pydantic-core 2.23.4`) y `fastapi==0.115.0` **no publican wheels para
-Python 3.14**, de modo que con Python 3.14.x `pip install -r requirements.txt`
-falla en un entorno nuevo (intentaría compilar `pydantic-core` desde código
-fuente). Con Python 3.13.13 todo el stack instala desde wheels **sin cambiar
-ninguna versión de librería**. Si el equipo requiere Python 3.14, habría que
-subir `pydantic`/`fastapi` a versiones con wheels para 3.14.
+Se selecciona una muestra aleatoria de **10.000 vuelos**, con semilla 42. El EDA genera una partición estratificada de **8.000 para entrenamiento y 2.000 para prueba**. El análisis detallado utiliza entrenamiento; no se ajustan transformaciones aprendidas sobre test.
 
-El `model.pkl` se generó con Python 3.13.13 y estas versiones exactas, y se
-verificó que:
-- `pip install -r requirements.txt` instala sin errores,
-- el `.pkl` carga en un proceso limpio,
-- `pytest` pasa completo y el servicio responde (ver `docs/evidencia_local.md`).
+Entradas, en el orden utilizado por el modelo:
 
-## Estructura
+| Variable | Tipo y significado |
+|---|---|
+| AIRLINE | Código de aerolínea de dos caracteres |
+| ORIGIN_AIRPORT | Aeropuerto de origen, IATA o BTS |
+| DESTINATION_AIRPORT | Aeropuerto de destino, IATA o BTS |
+| MONTH | Entero de 1 a 12 |
+| DAY | Día del mes |
+| DAY_OF_WEEK | Entero de 1 a 7; 1 es lunes |
+| SCHEDULED_DEPARTURE_MIN | Minutos desde medianoche, de 0 a 1440; no HHMM |
+| SCHEDULED_TIME | Duración programada positiva, en minutos |
+| DISTANCE | Distancia positiva, en millas |
 
-```
-proyecto/
-├── app/
-│   ├── __init__.py
-│   ├── main.py         # aplicación FastAPI (endpoints, lifespan, errores)
-│   ├── schemas.py      # modelos Pydantic (contrato de entrada/salida)
-│   └── features.py     # contrato de features + canonicalización de códigos
-├── model/
-│   ├── model.pkl       # pipeline serializado (lo genera train.py)
-│   └── metadata.json   # versiones, features y métricas
-├── notebooks/
-│   └── EDA.ipynb       # análisis exploratorio y limpieza (genera el contrato)
-├── tests/
-│   └── test_api.py     # pruebas con TestClient
-├── reportes/
-│   ├── evaluacion.json          # CV, test, baseline, matriz, interpretación
-│   ├── matriz_confusion.csv
-│   └── classification_report.csv
-├── docs/
-│   ├── evidencia_local.md
-│   └── salida_pytest.txt
-├── data/
-│   └── README.md       # origen del dataset (no se versionan los CSV)
-├── train.py            # entrenamiento + evaluación + serialización (Paso 2)
-├── requirements.txt    # dependencias con versiones fijas
-├── runtime.txt         # versión de Python
-├── Procfile            # comando de arranque (usa $PORT)
-└── .gitignore
+`ARRIVAL_DELAY` permite construir la etiqueta, pero no es predictor. `SOURCE_ROW` y `FLIGHT_DATE` también se reservan para auditoría.
+
+## 2. Estructura del repositorio
+
+```text
+app/                         API y esquemas de entrada/salida
+data/README.md               Origen y preparación de los datos
+docs/eda/                    Reportes, gráficos y resumen del EDA
+docs/entrenamiento/reportes/ Balance, métricas y matriz de confusión
+docs/api/ejecuciones/        Pytest y llamadas HTTP reales
+docs/api/pruebas/            Registro automático de pytest
+model/model.pkl             Pipeline completo
+model/metadata.json         Variables, versiones, métricas y trazabilidad
+notebooks/EDA.ipynb          Preparación y exploración
+notebooks/train.ipynb        Entrenamiento y serialización
+scripts/registrar_pruebas.py Registro automático de evidencia
+tests/test_api.py           Pruebas de la API
+tests/conftest.py           Configuración y registro de pytest
+requirements.txt            Dependencias fijadas
+runtime.txt                 Python utilizado
+Procfile                    Comando de arranque portable
 ```
 
-## Contrato de entrada (9 predictores del EDA)
+Los CSV grandes, los entornos virtuales, las carpetas temporales y el historial local de modelos están excluidos de Git. El entrenamiento se realiza en notebook; no requiere `train.py` ni `configuracion_datos.json`.
 
-| Campo                     | Tipo   | Restricción / formato                              |
-|---------------------------|--------|----------------------------------------------------|
-| `AIRLINE`                 | str    | Código IATA de 2 caracteres (ej. `AA`).            |
-| `ORIGIN_AIRPORT`          | str    | IATA de 3 letras (`LAX`) o BTS de 5 dígitos.       |
-| `DESTINATION_AIRPORT`     | str    | IATA de 3 letras (`JFK`) o BTS de 5 dígitos.       |
-| `MONTH`                   | int    | 1–12                                               |
-| `DAY`                     | int    | 1–31                                               |
-| `DAY_OF_WEEK`             | int    | 1–7 (1 = lunes)                                    |
-| `SCHEDULED_DEPARTURE_MIN` | int    | 0–1440 (minutos desde medianoche)                  |
-| `SCHEDULED_TIME`          | float  | > 0 (duración programada en minutos)               |
-| `DISTANCE`                | float  | > 0 (millas)                                       |
+## 3. Instalación en Windows / PowerShell
 
-Los códigos se aceptan en forma "plana" (`LAX`, `AA`) y la API los normaliza a la
-forma del entrenamiento (`IATA:LAX`), replicando exactamente la limpieza del EDA
-para evitar *training–serving skew* (ver `app/features.py`).
+Requisitos: Git y **Python 3.13.13**, la versión declarada por el modelo entregado y runtime.txt. Comprobarla antes de crear el entorno:
 
-## Puesta en marcha (local)
-
-```bash
-# 1) Entorno virtual e instalación
-python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-# 2) (Opcional) Colocar data/train.csv y data/test.csv generados por EDA.ipynb.
-#    Si no están, train.py genera un dataset sintético de respaldo.
-
-# 3) Entrenar el modelo (genera model/model.pkl y model/metadata.json)
-python train.py
-
-# 4) Levantar el servicio
-uvicorn app.main:app --reload --port 8000
+```powershell
+py -3.13 --version
+git clone https://github.com/GerardoCerroCampos/CC_MDS_G7_FLT.git
+cd CC_MDS_G7_FLT
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
 ```
 
-Documentación interactiva en <http://localhost:8000/docs>.
+El primer comando debe mostrar Python 3.13.13. No cambiar únicamente runtime.txt para declarar otra versión: si se cambia el entorno, se debe volver a entrenar y probar. Los comandos siguientes usan el intérprete del entorno explícitamente; no requieren activar PowerShell con Activate.ps1.
 
-## Endpoints
+## 4. Reproducir EDA y entrenamiento
 
-| Método | Ruta             | Descripción                                                   |
-|--------|------------------|--------------------------------------------------------------|
-| GET    | `/health`        | Estado del servicio y confirmación de modelo cargado.        |
-| GET    | `/model-info`    | Metadatos: estimador, target, features, métricas y versión.  |
-| POST   | `/predict`       | Predicción para un vuelo (incluye probabilidad).             |
-| POST   | `/predict-batch` | Predicción para una lista de vuelos (mismo orden).           |
-| GET    | `/docs`          | Swagger UI (automática).                                     |
+Para utilizar el modelo incluido en Git se puede pasar directamente a la sección 6. Para reproducir su preparación y entrenamiento:
 
-### Ejemplo: predicción individual
+1. Descargar y descomprimir `flights.csv` según [data/README.md](data/README.md). Guardarlo en `data/raw/flights.csv`.
+2. Iniciar JupyterLab desde la raíz del proyecto:
 
-```bash
-curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"AIRLINE":"AA","ORIGIN_AIRPORT":"LAX","DESTINATION_AIRPORT":"JFK",
-       "MONTH":7,"DAY":15,"DAY_OF_WEEK":3,"SCHEDULED_DEPARTURE_MIN":1080,
-       "SCHEDULED_TIME":320.0,"DISTANCE":2475.0}'
+```powershell
+.\.venv\Scripts\python.exe -m jupyterlab
 ```
 
-Respuesta:
+3. Abrir `notebooks/EDA.ipynb`, seleccionar el kernel del entorno y usar **Restart Kernel and Run All Cells**. Esperar a que finalice sin errores y guardar el notebook.
+4. Abrir `notebooks/train.ipynb` y repetir el procedimiento. Entrena con los CSV que produjo el EDA.
 
-```json
-{"prediccion":1,"etiqueta":"atraso >= 15 min","probabilidad":0.5841,
- "probabilidad_atraso":0.5841,"model_version":"1.0.0",
- "timestamp":"2026-09-26T00:58:05Z"}
+Para confirmar el kernel, ejecutar `import sys; print(sys.executable); print(sys.version)` en una celda temporal: debe corresponder al `.venv` del proyecto. El EDA lee el archivo completo por bloques de 200.000 filas. Requiere espacio para el original (aproximadamente 592 MB), el limpio (aproximadamente 408 MB) y los demás resultados.
+
+## 5. Entrenamiento y resultados
+
+El modelo es **RandomForestClassifier**, con 200 árboles, profundidad máxima 12, un máximo de 256 hojas, mínimo de ocho observaciones por hoja, ponderación balanceada de clases y semilla 42. Los parámetros se fijan antes de evaluar test; esta versión no hace búsqueda de hiperparámetros ni validación cruzada.
+
+Un único `Pipeline` contiene `ColumnTransformer` —OneHotEncoder con categorías desconocidas ignoradas y StandardScaler— y Random Forest. Todo se ajusta únicamente con train. StandardScaler explicita el tratamiento numérico, aunque el bosque no lo necesita para funcionar. La API adapta los códigos al formato del EDA; la codificación y el escalado siguen dentro del artefacto.
+
+Resultados de la ejecución registrada en [model/metadata.json](model/metadata.json):
+
+| Métrica de test | Valor |
+|---|---:|
+| F1 macro | 0,5184 |
+| Recall de atrasos | 0,4718 |
+| Precisión de alertas | 0,2310 |
+| Average precision | 0,2403 |
+| ROC AUC | 0,5876 |
+| Accuracy | 0,6085 |
+
+F1 macro considera ambas clases con igual peso. Recall mide la detección de atrasos y precisión mide cuántas alertas son correctas. Se reportan ambas para mostrar las omisiones y falsas alarmas. Average precision considera el ordenamiento de probabilidades. Accuracy se interpreta con cautela: predecir siempre sin atraso alcanza 0,8135 de accuracy, pero no detecta ningún atraso. El modelo no se presenta como una solución de alta precisión.
+
+El pipeline se guarda con joblib en `model/model.pkl`: **362.216 bytes**, menos de 100 MB. El notebook lo carga en un proceso Python nuevo y compara predicciones y probabilidades, incluyendo una categoría desconocida. Los metadatos registran sklearn 1.8.0, Python 3.13.13, variables ordenadas, parámetros, métricas, versión e identificación de ejecución y hashes de datos y modelo.
+
+Los reportes se guardan en `docs/entrenamiento/reportes/`. Cada entrenamiento conserva una copia de los artefactos y del código en `model/versions/<version>/<ejecucion>/`, excluido de Git. Las copias en `model/` corresponden al entrenamiento actual.
+
+Limitaciones: datos de 2015; separación aleatoria dentro del mismo año; posible dependencia entre rutas y fechas; aeropuertos IATA/BTS sin unificar; probabilidades no calibradas. El conjunto de prueba se consultó en ejercicios anteriores y no es una evaluación externa nueva.
+
+## 6. Iniciar la API
+
+Desde la raíz, con el modelo y sus metadatos presentes:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
 ```
 
-## Decisiones de diseño (lo que evalúa la rúbrica del Paso 5)
+Abrir [Swagger](http://localhost:8000/docs). Mantener esta terminal abierta durante las llamadas HTTP.
 
-- **Carga única del modelo.** El `.pkl` se carga una sola vez al iniciar la app,
-  en el evento `lifespan`, y queda en memoria (`ARTIFACTS`); no se recarga por
-  petición.
-- **Validación con Pydantic.** El esquema `Vuelo` fija tipos, rangos y patrones
-  (`AIRLINE` de 2 caracteres, aeropuertos IATA/BTS, `MONTH` 1–12, etc.). Una
-  entrada mal formada produce **422** automáticamente.
-- **Manejo de errores.**
-  - Campos faltantes o valores fuera de contrato → **422** (Pydantic).
-  - Fallo interno del modelo → **500** con mensaje controlado (traza al log, no
-    al cliente).
-  - Modelo no disponible → **503** con instrucción para entrenarlo.
-- **Sin skew.** La canonicalización de categóricas se comparte entre `train.py`
-  y la API (`app/features.py`). El resto del preprocesamiento (OneHot + escalado)
-  vive dentro del pipeline serializado.
-- **Respuesta enriquecida.** Predicción, etiqueta legible, probabilidad,
-  probabilidad de atraso, versión del modelo y marca de tiempo (UTC).
-- **Rutas relativas.** El modelo se referencia con rutas relativas al proyecto.
+| Método y ruta | Función |
+|---|---|
+| GET /health | Estado y confirmación de modelo cargado |
+| GET /model-info | Estimador, variables, métricas, versión sklearn y versión/ejecución del modelo |
+| POST /predict | Predicción de un vuelo y probabilidades |
+| POST /predict-batch | Lista de vuelos y lista de resultados, en el mismo orden |
+| GET /docs | Documentación interactiva |
 
-## Pruebas
+El modelo se carga una vez en lifespan. Se verifican versión sklearn, variables, clases, estimador y hash antes de publicar modelo y metadatos juntos. Datos inválidos devuelven 422; un fallo interno de inferencia devuelve 500 con mensaje controlado. Si los artefactos no están disponibles o son incompatibles, la inferencia devuelve 503 y health informa `model_loaded=false`.
 
-```bash
-pytest -v
+Los códigos admiten espacios externos, minúsculas y prefijos IATA/BTS. Los números deben ser números JSON; los campos extra se rechazan. La clase 0 significa **atraso menor de 15 minutos**, no necesariamente llegada anticipada o puntual. El lote recibe un arreglo directo, no un objeto con `items`.
+
+Ejemplos en otra terminal PowerShell:
+
+```powershell
+$vuelo = @{
+    AIRLINE = 'AA'; ORIGIN_AIRPORT = 'LAX'; DESTINATION_AIRPORT = 'JFK'
+    MONTH = 7; DAY = 15; DAY_OF_WEEK = 3
+    SCHEDULED_DEPARTURE_MIN = 1080; SCHEDULED_TIME = 320.0; DISTANCE = 2475.0
+}
+Invoke-RestMethod 'http://localhost:8000/health'
+Invoke-RestMethod 'http://localhost:8000/model-info'
+Invoke-RestMethod 'http://localhost:8000/predict' -Method Post -ContentType 'application/json' -Body ($vuelo | ConvertTo-Json)
+$lote = @($vuelo, $vuelo)
+Invoke-RestMethod 'http://localhost:8000/predict-batch' -Method Post -ContentType 'application/json' -Body (ConvertTo-Json -InputObject $lote -Depth 5)
 ```
 
-Cubren `/health`, `/model-info`, una predicción válida, aceptación de código BTS,
-predicción por lote y dos casos de entrada inválida (422). Salida en
-`docs/salida_pytest.txt` (**7 passed**).
+## 7. Pruebas y evidencia
 
-## Entrenamiento y evaluación (Paso 2)
+Las pruebas automatizadas no requieren un servidor Uvicorn activo; TestClient inicia la aplicación durante las pruebas:
 
-`train.py` implementa el flujo completo, integrado con el EDA:
-
-1. **Lee el contrato del EDA** (`contrato_datos.json`): toma de ahí la lista
-   autorizada de predictores, categóricas/numéricas, etiqueta y semilla. Si el
-   archivo no está, usa la definición equivalente de `app/features.py`. Comprueba
-   que ningún predictor sea una columna de auditoría (previene fuga de información).
-2. **Usa la partición del EDA** (`data/train.csv` para ajustar, `data/test.csv`
-   como hold-out). Si no existen, genera un dataset sintético reproducible.
-3. **Entrena el pipeline** solo con train (el preprocesamiento se ajusta dentro
-   del pipeline, nunca con test).
-4. **Evalúa con metodología defendible:**
-   - Validación cruzada estratificada de 5 folds sobre train, con varias métricas.
-   - Evaluación final sobre el hold-out reservado por el EDA.
-   - Baseline de clase mayoritaria (`DummyClassifier`) como referencia.
-   - Métricas apropiadas al desbalance: F1-macro, recall y precisión de la clase
-     positiva, ROC-AUC, PR-AUC, exactitud y balanced accuracy.
-   - Matriz de confusión, `classification_report` e interpretación textual.
-5. **Serializa** el pipeline y escribe `model/metadata.json` más los reportes
-   reproducibles en `reportes/`.
-
-```bash
-python train.py                      # modelo por defecto (LogisticRegression)
-MODELO=random_forest python train.py # estimador alternativo
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q tests/test_api.py
 ```
 
-Todas las métricas y la interpretación quedan también en `/model-info` y en
-`reportes/evaluacion.json`.
+`tests/conftest.py` guarda el resumen, detalles, errores, avisos y duración en `docs/api/pruebas/FECHA/`. También elige una carpeta temporal nueva para evitar conflictos de permisos. Las 22 pruebas cubren metadatos, predicciones iguales al pipeline, orden de lotes, normalización, entradas inválidas, error 500, disponibilidad, carga única y documentación OpenAPI.
 
-### Reentrenar con los datos reales
+Salida registrada con Python 3.13.13 en la ejecución del 26 de septiembre de 2026:
 
-1. Ejecutar `EDA.ipynb` con `flights.csv`: genera `contrato_datos.json`,
-   `data/train.csv` y `data/test.csv`.
-2. Ejecutar `python train.py`: detecta el contrato y la partición y entrena con
-   ellos (el log mostrará `origen=eda_csv`).
-3. Reiniciar el servicio. `/model-info` mostrará las métricas reales.
+```text
+22 passed, 1 warning in 6.48s
+```
 
-> El `model.pkl` y los reportes incluidos se generaron con el **dataset sintético
-> de respaldo** (`data_source: "sintetico"`), para que el repo funcione sin la
-> descarga de Kaggle. Se recalculan al reentrenar con los CSV del EDA.
+El aviso es una deprecación de BlockingPortal en Starlette/AnyIO. No ocasionó fallos. Véase la [salida completa de pytest](docs/api/ejecuciones/20260926T152212073522Z/pytest.txt).
+
+Con Uvicorn activo, ejecutar en otra terminal:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/registrar_pruebas.py
+```
+
+Se guardan pytest, solicitudes, respuestas y códigos HTTP en `docs/api/ejecuciones/FECHA/`. La ejecución publicada acredita **individual 200, lote 200 e inválida 422**:
+
+- [Reporte de llamadas y pruebas](docs/api/ejecuciones/20260926T152212073522Z/reporte.md).
+- [Solicitudes y respuestas JSON](docs/api/ejecuciones/20260926T152212073522Z/llamadas.json).
+- [Resumen de ejecución](docs/api/ejecuciones/20260926T152212073522Z/resumen.json).
+
+**Evidencia pendiente:** guardar y versionar una captura real de Swagger funcionando, por ejemplo `docs/api/swagger_localhost.png`, y enlazarla aquí después de incorporarla. Los registros anteriores no sustituyen esa captura. Si se actualizan código o modelo, repetir las pruebas y actualizar los enlaces y el resultado de este README.
+
+## 8. Entorno y alcance
+
+requirements.txt fija las dependencias. runtime.txt declara `python-3.13.13`. Procfile contiene:
+
+```text
+web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+La evidencia corresponde a ejecución local. Esta entrega no acredita un despliegue en nube. Antes de entregar, realizar una instalación en una copia nueva con entorno virtual nuevo, comprobar carga del modelo, ejecutar pruebas e iniciar el servicio. El historial de Git debe incluir las contribuciones de todos los integrantes; si el repositorio es privado, se debe otorgar acceso al equipo docente.
