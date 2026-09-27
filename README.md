@@ -5,6 +5,12 @@ El servicio predice si un vuelo llegará con **15 minutos o más de atraso** (`A
 
 La entrega incluye EDA, entrenamiento reproducible, pipeline serializado, API, pruebas automatizadas y evidencia de llamadas a localhost.
 
+## Grupo 7
+
+- Tamara Domínguez 
+- Jorge Sánchez 
+- Gerardo Cerro 
+
 ## Servicio desplegado (bonificación)
 
 **URL pública:** https://cc-mds-g7-flt.onrender.com
