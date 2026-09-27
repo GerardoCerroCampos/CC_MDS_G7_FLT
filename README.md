@@ -5,6 +5,14 @@ El servicio predice si un vuelo llegará con **15 minutos o más de atraso** (`A
 
 La entrega incluye EDA, entrenamiento reproducible, pipeline serializado, API, pruebas automatizadas y evidencia de llamadas a localhost.
 
+## Servicio desplegado (bonificación)
+
+**URL pública:** https://cc-mds-g7-flt.onrender.com
+
+- Documentación interactiva: https://cc-mds-g7-flt.onrender.com/docs
+- Health check: https://cc-mds-g7-flt.onrender.com/health
+
+
 ## 1. Datos y preparación
 
 Fuente pública: [2015 Flight Delays and Cancellations, USDOT en Kaggle](https://www.kaggle.com/datasets/usdot/flight-delays). Las instrucciones de descarga y la identificación del archivo están en [data/README.md](data/README.md).
@@ -193,3 +201,64 @@ La evidencia corresponde a ejecución local. Esta entrega no acredita un desplie
 ## 9. Comprobación desde una copia nueva
 
 El equipo verificó el proyecto desde una copia nueva del repositorio y un entorno virtual nuevo con Python 3.13.13. La instalación de dependencias, la carga del modelo y las pruebas finalizaron correctamente.
+
+
+## 10. Despliegue en la nube (bonificación)
+
+### Proveedor
+
+Se utilizó [Render](https://render.com) (plan Free) como proveedor de hosting.
+
+### Configuración
+
+- **Repositorio:** conectado directamente vía GitHub (autorización OAuth de Render).
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Variables de entorno:**
+  - `PYTHON_VERSION=3.13.13`
+- **Health Check Path:** `/health`
+- **Auto-Deploy:** `On Commit` (activado por defecto en Render) — cada push a `main` dispara un nuevo despliegue automáticamente, cumpliendo el criterio de CI/CD continuo.
+
+### Problema encontrado y solución
+
+El enunciado asumía que Render reconoce automáticamente `Procfile` y `runtime.txt`, tal como lo hace Heroku. Al desplegar, nos dimos cuenta de que esto no es así: Render no lee esos archivos. Hubo que entrar al panel de Render y configurar manualmente el Build Command (`pip install -r requirements.txt`) y el Start Command (`uvicorn app.main:app --host 0.0.0.0 --port $PORT`), además de agregar la variable de entorno `PYTHON_VERSION=3.13.13` para fijar la versión de Python (Render usa esta variable, o un archivo `.python-version`, en vez de `runtime.txt`).
+
+Lo confirmamos revisando la documentación oficial de Render (https://render.com/docs/python-version), ya que el comportamiento actual de la plataforma difiere de lo que describía el enunciado.
+
+### Evidencia de funcionamiento
+
+**Health check (GET):**
+
+```bash
+curl https://cc-mds-g7-flt.onrender.com/health
+```
+
+```json
+{"status":"ok","model_loaded":true}
+```
+
+**Predicción real (POST):**
+
+```bash
+curl -s -X POST https://cc-mds-g7-flt.onrender.com/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "AIRLINE": "AA",
+    "ORIGIN_AIRPORT": "LAX",
+    "DESTINATION_AIRPORT": "JFK",
+    "MONTH": 6,
+    "DAY": 15,
+    "DAY_OF_WEEK": 3,
+    "SCHEDULED_DEPARTURE_MIN": 480,
+    "SCHEDULED_TIME": 300,
+    "DISTANCE": 2475
+  }'
+```
+
+```json
+{"prediccion":0,"etiqueta":"atraso menor de 15 min","probabilidad":0.5075,"probabilidad_atraso":0.4925,"model_version":"1.0.0","run_id":"20260926T145348857218Z","timestamp":"2026-09-27T01:43:27.571394Z"}
+```
+
+**Documentación interactiva (Swagger UI):** navegable en https://cc-mds-g7-flt.onrender.com/docs, mostrando los endpoints `/health`, `/model-info`, `/predict` y `/predict-batch`.
+
+> Nota: al estar en el plan gratuito, el servicio "duerme" tras ~15 minutos sin tráfico. La primera petición tras inactividad puede demorar 30-60 segundos en responder (cold start); las siguientes responden de inmediato.
