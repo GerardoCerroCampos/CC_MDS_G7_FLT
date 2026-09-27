@@ -195,7 +195,7 @@ requirements.txt fija las dependencias. runtime.txt declara `python-3.13.13`. Pr
 web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
-La evidencia corresponde a ejecución local. Esta entrega no acredita un despliegue en nube. El historial de Git debe incluir las contribuciones de todos los integrantes; si el repositorio es privado, se debe otorgar acceso al equipo docente.
+La evidencia principal corresponde a ejecución local; adicionalmente, el equipo desplegó el servicio en la nube (ver sección 10) como parte de la bonificación opcional. El repositorio es público, por lo que el equipo docente puede acceder directamente; el historial de Git incluye las contribuciones de todos los integrantes.
 
 
 ## 9. Comprobación desde una copia nueva
