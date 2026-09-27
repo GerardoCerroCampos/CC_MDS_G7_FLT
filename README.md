@@ -60,9 +60,11 @@ Procfile                    Comando de arranque portable
 
 Los CSV grandes, los entornos virtuales, las carpetas temporales y el historial local de modelos están excluidos de Git. El entrenamiento se realiza en notebook; no requiere `train.py` ni `configuracion_datos.json`.
 
-## 3. Instalación en Windows / PowerShell
+## 3. Instalación en Windows / PowerShell y macOS / Linux
 
-Requisitos: Git y **Python 3.13.13**, la versión declarada por el modelo entregado y runtime.txt. Comprobarla antes de crear el entorno:
+Requisitos: Git y **Python 3.13.13**, la versión declarada por el modelo entregado y runtime.txt. Comprobarla antes de crear el entorno.
+
+**Windows / PowerShell:**
 
 ```powershell
 py -3.13 --version
@@ -73,7 +75,18 @@ py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-El primer comando debe mostrar Python 3.13.13. No cambiar únicamente runtime.txt para declarar otra versión: si se cambia el entorno, se debe volver a entrenar y probar. Los comandos siguientes usan el intérprete del entorno explícitamente; no requieren activar PowerShell con Activate.ps1.
+**macOS / Linux:**
+
+```bash
+python3.13 --version
+git clone https://github.com/GerardoCerroCampos/CC_MDS_G7_FLT.git
+cd CC_MDS_G7_FLT
+python3.13 -m venv .venv
+./.venv/bin/python -m pip install -r requirements.txt
+./.venv/bin/python -m pip check
+```
+
+El primer comando debe mostrar Python 3.13.13. No cambiar únicamente runtime.txt para declarar otra versión: si se cambia el entorno, se debe volver a entrenar y probar. Los comandos siguientes usan el intérprete del entorno explícitamente; no requieren activar el entorno con Activate.ps1 (Windows) ni con `source .venv/bin/activate` (macOS/Linux).
 
 ## 4. Reproducir EDA y entrenamiento
 
@@ -82,8 +95,16 @@ Para utilizar el modelo incluido en Git se puede pasar directamente a la secció
 1. Descargar y descomprimir `flights.csv` según [data/README.md](data/README.md). Guardarlo en `data/raw/flights.csv`.
 2. Iniciar JupyterLab desde la raíz del proyecto:
 
+**Windows / PowerShell:**
+
 ```powershell
 .\.venv\Scripts\python.exe -m jupyterlab
+```
+
+**macOS / Linux:**
+
+```bash
+./.venv/bin/python -m jupyterlab
 ```
 
 3. Abrir `notebooks/EDA.ipynb`, seleccionar el kernel del entorno y usar **Restart Kernel and Run All Cells**. Esperar a que finalice sin errores y guardar el notebook.
@@ -120,8 +141,16 @@ Limitaciones: datos de 2015; separación aleatoria dentro del mismo año; posibl
 
 Desde la raíz, con el modelo y sus metadatos presentes:
 
+**Windows / PowerShell:**
+
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
+```
+
+**macOS / Linux:**
+
+```bash
+./.venv/bin/python -m uvicorn app.main:app --reload --port 8000
 ```
 
 Abrir [Swagger](http://localhost:8000/docs). Mantener esta terminal abierta durante las llamadas HTTP.
@@ -138,7 +167,9 @@ El modelo se carga una vez en lifespan. Se verifican versión sklearn, variables
 
 Los códigos admiten espacios externos, minúsculas y prefijos IATA/BTS. Los números deben ser números JSON; los campos extra se rechazan. La clase 0 significa **atraso menor de 15 minutos**, no necesariamente llegada anticipada o puntual. El lote recibe un arreglo directo, no un objeto con `items`.
 
-Ejemplos en otra terminal PowerShell:
+Ejemplos en otra terminal, con Uvicorn activo:
+
+**Windows / PowerShell:**
 
 ```powershell
 $vuelo = @{
@@ -152,13 +183,33 @@ Invoke-RestMethod 'http://localhost:8000/predict' -Method Post -ContentType 'app
 $lote = @($vuelo, $vuelo)
 Invoke-RestMethod 'http://localhost:8000/predict-batch' -Method Post -ContentType 'application/json' -Body (ConvertTo-Json -InputObject $lote -Depth 5)
 ```
+**macOS / Linux:**
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8000/model-info
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"AIRLINE":"AA","ORIGIN_AIRPORT":"LAX","DESTINATION_AIRPORT":"JFK","MONTH":7,"DAY":15,"DAY_OF_WEEK":3,"SCHEDULED_DEPARTURE_MIN":1080,"SCHEDULED_TIME":320.0,"DISTANCE":2475.0}'
+curl -X POST http://localhost:8000/predict-batch \
+  -H "Content-Type: application/json" \
+  -d '[{"AIRLINE":"AA","ORIGIN_AIRPORT":"LAX","DESTINATION_AIRPORT":"JFK","MONTH":7,"DAY":15,"DAY_OF_WEEK":3,"SCHEDULED_DEPARTURE_MIN":1080,"SCHEDULED_TIME":320.0,"DISTANCE":2475.0},{"AIRLINE":"AA","ORIGIN_AIRPORT":"LAX","DESTINATION_AIRPORT":"JFK","MONTH":7,"DAY":15,"DAY_OF_WEEK":3,"SCHEDULED_DEPARTURE_MIN":1080,"SCHEDULED_TIME":320.0,"DISTANCE":2475.0}]'
+```
 
 ## 7. Pruebas y evidencia
 
 Las pruebas automatizadas no requieren un servidor Uvicorn activo; TestClient inicia la aplicación durante las pruebas:
 
+**Windows / PowerShell:**
+
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q tests/test_api.py
+```
+
+**macOS / Linux:**
+
+```bash
+./.venv/bin/python -m pytest -q tests/test_api.py
 ```
 
 `tests/conftest.py` guarda el resumen, detalles, errores, avisos y duración en `docs/api/pruebas/FECHA/`. También elige una carpeta temporal nueva para evitar conflictos de permisos. Las 22 pruebas cubren metadatos, predicciones iguales al pipeline, orden de lotes, normalización, entradas inválidas, error 500, disponibilidad, carga única y documentación OpenAPI.
@@ -173,8 +224,16 @@ El aviso es una deprecación de BlockingPortal en Starlette/AnyIO. No ocasionó 
 
 Con Uvicorn activo, ejecutar en otra terminal:
 
+**Windows / PowerShell:**
+
 ```powershell
 .\.venv\Scripts\python.exe scripts/registrar_pruebas.py
+```
+
+**macOS / Linux:**
+
+```bash
+./.venv/bin/python scripts/registrar_pruebas.py
 ```
 
 Se guardan pytest, solicitudes, respuestas y códigos HTTP en `docs/api/ejecuciones/FECHA/`. La ejecución publicada acredita **individual 200, lote 200 e inválida 422**:
