@@ -152,6 +152,10 @@ Desde la raíz, con el modelo y sus metadatos presentes:
 ```bash
 ./.venv/bin/python -m uvicorn app.main:app --reload --port 8000
 ```
+> Nota: si Uvicorn entra en un ciclo de reinicios constantes ("WatchFiles detected changes..."), es porque `--reload` está vigilando también los archivos de `.venv`. Deténlo con Ctrl+C y vuelve a ejecutarlo sin `--reload`:
+> ```bash
+> ./.venv/bin/python -m uvicorn app.main:app --port 8000
+> ```
 
 Abrir [Swagger](http://localhost:8000/docs). Mantener esta terminal abierta durante las llamadas HTTP.
 
